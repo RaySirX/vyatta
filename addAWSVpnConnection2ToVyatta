@@ -1,0 +1,39 @@
+#! /bin/vcli -f
+VPCCIDR='172.20.50.0/23'
+VPNName=AWScc
+vtiName=vti17
+vtiDesc="${VPNName} VPC tunnel 2"
+customer_gateway_tunnel_outside_address=184.172.19.131
+customer_gateway_tunnel_inside_address='169.254.46.182/30'
+vpn_gateway_tunnel_outside_address=34.225.166.114
+vpn_gateway_tunnel_inside_address=169.254.46.181
+ike_pre_shared_key='IKE_key'
+
+#
+# Start
+#
+configure
+
+#
+#4: Tunnel Interface Configuration
+#
+set vpn ipsec site-to-site peer ${vpn_gateway_tunnel_outside_address} authentication mode "pre-shared-secret"
+set vpn ipsec site-to-site peer ${vpn_gateway_tunnel_outside_address} authentication pre-shared-secret "${ike_pre_shared_key}"
+set vpn ipsec site-to-site peer ${vpn_gateway_tunnel_outside_address} description "${vtiDesc}"
+set vpn ipsec site-to-site peer ${vpn_gateway_tunnel_outside_address} ike-group "${VPNName}"
+set vpn ipsec site-to-site peer ${vpn_gateway_tunnel_outside_address} local-address "${customer_gateway_tunnel_outside_address}"
+set vpn ipsec site-to-site peer ${vpn_gateway_tunnel_outside_address} vti bind "${vtiName}"
+set vpn ipsec site-to-site peer ${vpn_gateway_tunnel_outside_address} vti esp-group "${VPNName}"
+
+set interfaces vti ${vtiName} address "${customer_gateway_tunnel_inside_address}"
+set interfaces vti ${vtiName} description "${vtiDesc}"
+set interfaces vti ${vtiName} mtu '1436'
+
+set protocols static route ${VPCCIDR} next-hop ${vpn_gateway_tunnel_inside_address}
+
+#
+# End
+#
+commit
+save
+exit

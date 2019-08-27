@@ -1,0 +1,39 @@
+#! /bin/vcli -f
+VPNName=AWScc
+
+#
+# Start
+#
+configure
+
+#
+#1: Internet Key Exchange Configuration
+#
+set vpn ipsec ike-group ${VPNName} lifetime '28800'
+set vpn ipsec ike-group ${VPNName} proposal 1 dh-group '2'
+set vpn ipsec ike-group ${VPNName} proposal 1 encryption 'aes128'
+set vpn ipsec ike-group ${VPNName} proposal 1 hash 'sha1'
+
+#
+#2: IPSec Configuration
+#
+set vpn ipsec esp-group ${VPNName} compression 'disable'
+set vpn ipsec esp-group ${VPNName} lifetime '3600'
+set vpn ipsec esp-group ${VPNName} mode 'tunnel'
+set vpn ipsec esp-group ${VPNName} pfs 'enable'
+set vpn ipsec esp-group ${VPNName} proposal 1 encryption 'aes128'
+set vpn ipsec esp-group ${VPNName} proposal 1 hash 'sha1'
+
+#
+# 2.1 IPSec Dead Peer Detection
+#
+set vpn ipsec ike-group ${VPNName} dead-peer-detection action 'restart'
+set vpn ipsec ike-group ${VPNName} dead-peer-detection interval '15'
+set vpn ipsec ike-group ${VPNName} dead-peer-detection timeout '30'
+
+#
+# End
+#
+commit
+save
+exit
